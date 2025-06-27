@@ -170,7 +170,7 @@ class OpenELMEncoderWrapper(Wrapper):
     """
     def __init__(
         self,
-        model_name_or_path: str = "/data/shared/models--apple--OpenELM-3B",
+        model_name_or_path: str = "apple/OpenELM-3B",
         revision: str | None = None,
         device: Union[str, bool] = "auto",
         cache_dir: Path | str | None = "/data/shared/",  # Default cache directory
@@ -257,7 +257,8 @@ class OLMoEncoderWrapper(AutoModelForCausalLMEncoderWrapper):
 
     def __init__(
         self,
-        model_name_or_path: str = "/data/shared/olmo/OLMo-7B_shard_size_2GB", # Local path or HF ID
+        # model_name_or_path: str = "/data/shared/olmo/OLMo-7B_shard_size_2GB",
+        model_name_or_path: str = "allenai/OLMo-7B", # Local path or HF ID
         revision: str | None = None,
         device: Union[str, bool] = "auto",
         cache_dir: Path | str | None = "/data/shared/",
@@ -281,7 +282,7 @@ class OLMoEncoderWrapper(AutoModelForCausalLMEncoderWrapper):
 olmo_7b_base = ModelMeta(
     loader=partial(
         OLMoEncoderWrapper,
-        model_name_or_path="/data/shared/olmo/OLMo-7B_shard_size_2GB", # Path to your OLMo model
+        model_name_or_path="allenai/OLMo-7B", # Path to your OLMo model
         # revision="<OLMO_REVISION_HASH>", # Add if you have a specific revision
         revision="local-2025-06-25-olmo-v1",
         torch_dtype=torch.float32,
