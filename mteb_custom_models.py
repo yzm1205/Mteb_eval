@@ -15,6 +15,8 @@ from transformers.modeling_outputs import (
     CausalLMOutputWithPast,
     BaseModelOutputWithPast,
 )
+from math import ceil 
+from tqdm import tqdm
 
 from mteb.encoder_interface import Encoder, PromptType
 from mteb.model_meta import ModelMeta
@@ -110,7 +112,7 @@ class BaseAutoEncoderWrapper(Wrapper): # Renamed to Wrapper and added __init__
         **kwargs: Any,
     ) -> NDArray:
         all_embeddings = []
-        for batch in batched(sentences, batch_size):
+        for batch in tqdm(batched(sentences, batch_size),desc="Encoding batches"):
             sent_encode = self.tokenizer(
                 batch,
                 return_tensors="pt",
@@ -172,7 +174,7 @@ class OpenELMEncoderWrapper(Wrapper):
         revision: str | None = None,
         device: Union[str, bool] = "auto",
         cache_dir: Path | str | None = "/data/shared/",  # Default cache directory
-        torch_dtype: torch.dtype = torch.float16,
+        torch_dtype: torch.dtype = torch.float32,
         max_length: int = 1024,
         **kwargs: Any,
     ):
@@ -223,8 +225,11 @@ class OpenELMEncoderWrapper(Wrapper):
         batch_size: int = 32,
         **kwargs: Any,
     ) -> NDArray:
+        
         all_embeddings = []
-        for batch in batched(sentences, batch_size):
+        total_batches = ceil(len(sentences) / batch_size)
+        for batch in tqdm(batched(sentences, batch_size), total=total_batches,
+                                    desc=f"Encoding for Task: {task_name if task_name else 'Unknown'}"):
             sent_encode = self.tokenizer(
                 batch,
                 return_tensors="pt",
@@ -256,7 +261,7 @@ class OLMoEncoderWrapper(AutoModelForCausalLMEncoderWrapper):
         revision: str | None = None,
         device: Union[str, bool] = "auto",
         cache_dir: Path | str | None = "/data/shared/",
-        torch_dtype: torch.dtype = torch.float16,
+        torch_dtype: torch.dtype = torch.float32,
         max_length: int = 1024,
         **kwargs: Any,
     ):
@@ -279,7 +284,7 @@ olmo_7b_base = ModelMeta(
         model_name_or_path="/data/shared/olmo/OLMo-7B_shard_size_2GB", # Path to your OLMo model
         # revision="<OLMO_REVISION_HASH>", # Add if you have a specific revision
         revision="local-2025-06-25-olmo-v1",
-        torch_dtype=torch.float16,
+        torch_dtype=torch.float32,
         max_length=1024,
     ),
     name="Bridge-AI/OLMo-7B-Base-MTEB", # A distinctive name
@@ -309,7 +314,7 @@ openelm_3b_base = ModelMeta(
         OpenELMEncoderWrapper,
         model_name_or_path="apple/OpenELM-3B", # Hugging Face Model ID
         revision="local-2025-06-25-openelm-v1",# Or a specific commit hash
-        torch_dtype=torch.float16,
+        torch_dtype=torch.float32,
         max_length=1024,
     ),
     name="Bridge-AI/OpenELM-3B-Base-MTEB", # A distinctive name
