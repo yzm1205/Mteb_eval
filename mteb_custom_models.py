@@ -173,7 +173,7 @@ class OpenELMEncoderWrapper(Wrapper):
         model_name_or_path: str = "apple/OpenELM-3B",
         revision: str | None = None,
         device: Union[str, bool] = "auto",
-        cache_dir: Path | str | None = "/data/shared/",  # Default cache directory
+        cache_dir: Path | str | None = None,  # Default cache directory
         torch_dtype: torch.dtype = torch.float32,
         max_length: int = 1024,
         **kwargs: Any,
@@ -261,7 +261,7 @@ class OLMoEncoderWrapper(AutoModelForCausalLMEncoderWrapper):
         model_name_or_path: str = "allenai/OLMo-7B", # Local path or HF ID
         revision: str | None = None,
         device: Union[str, bool] = "auto",
-        cache_dir: Path | str | None = "/data/shared/",
+        cache_dir: Path | str | None = None,
         torch_dtype: torch.dtype = torch.float32,
         max_length: int = 1024,
         **kwargs: Any,
