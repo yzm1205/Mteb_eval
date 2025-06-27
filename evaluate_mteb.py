@@ -89,7 +89,7 @@ def main():
             print(f"\nTask: {task_name} (Main Score: {main_score:.4f} if number else {main_score})")
             
             # Access the detailed scores, if available
-            scores_detail = task_result_dict.get('scores')
+            scores_detail = task_result_dict.scores
             if scores_detail:
                 # Scores might be nested (e.g., test split scores)
                 for split_name, split_metrics in scores_detail.items():
