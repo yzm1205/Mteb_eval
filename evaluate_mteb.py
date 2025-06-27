@@ -52,6 +52,8 @@ def main():
         "STS",
         "Retrieval",
         "Reranking",
+        "PairClassification",
+        "Clustering"
     ]
     
     
