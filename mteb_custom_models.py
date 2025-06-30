@@ -112,8 +112,12 @@ class BaseAutoEncoderWrapper(Wrapper): # Renamed to Wrapper and added __init__
         **kwargs: Any,
     ) -> NDArray:
         all_embeddings = []
-        for batch in tqdm(batched(sentences, batch_size),desc="Encoding batches"):
+        total_batches = ceil(len(sentences) / batch_size)
+        for batch in tqdm(batched(sentences, batch_size), total=total_batches,
+                                                            desc=f"Encoding for Task: {task_name if task_name else 'Unknown'}"):
+        #for batch in tqdm(batched(sentences, batch_size),desc="Encoding batches"):
             sent_encode = self.tokenizer(
+
                 batch,
                 return_tensors="pt",
                 padding=True,
@@ -284,7 +288,7 @@ olmo_7b_base = ModelMeta(
         OLMoEncoderWrapper,
         model_name_or_path="allenai/OLMo-7B", # Path to your OLMo model
         # revision="<OLMO_REVISION_HASH>", # Add if you have a specific revision
-        revision="local-2025-06-25-olmo-v1",
+        revision="step2000-tokens9B",
         torch_dtype=torch.float32,
         max_length=1024,
     ),
@@ -292,7 +296,7 @@ olmo_7b_base = ModelMeta(
     languages=["eng-Latn"], # Assuming English
     open_weights=True, # Assuming weights are public
     # revision="<OLMO_REVISION_HASH>", # Add if you have a specific revision
-    revision="local-2025-06-25-olmo-v1",
+    revision="step2000-tokens9B",
     release_date="2024-06-25", # Current date as placeholder
     n_parameters=7_000_000_000, # Approx 7B
     # You might need to run `ModelMeta.calculate_memory_usage_mb(loader())` to get this

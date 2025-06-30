@@ -2,6 +2,6 @@
 
 CUDA_VISIBLE_DEVICES=0 python evaluate_mteb.py \
     --model_name "openelm" \
-    --batch_size 16 \
+    --batch_size 32 \
     --device "auto"
     
