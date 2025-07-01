@@ -1,0 +1,58 @@
+{
+  "dataset_revision": "12ca3b695563788fead87a982ad1a068284413f4",
+  "task_name": "LegalBenchPC",
+  "mteb_version": "1.38.32",
+  "scores": {
+    "test": [
+      {
+        "similarity_accuracy": 0.605469,
+        "similarity_accuracy_threshold": 0.523118,
+        "similarity_f1": 0.746773,
+        "similarity_f1_threshold": 0.159253,
+        "similarity_precision": 0.597639,
+        "similarity_recall": 0.995086,
+        "similarity_ap": 0.619383,
+        "cosine_accuracy": 0.605469,
+        "cosine_accuracy_threshold": 0.523118,
+        "cosine_f1": 0.746773,
+        "cosine_f1_threshold": 0.159253,
+        "cosine_precision": 0.597639,
+        "cosine_recall": 0.995086,
+        "cosine_ap": 0.619383,
+        "manhattan_accuracy": 0.600586,
+        "manhattan_accuracy_threshold": 1946.411499,
+        "manhattan_f1": 0.747246,
+        "manhattan_f1_threshold": 3125.402832,
+        "manhattan_precision": 0.596483,
+        "manhattan_recall": 1.0,
+        "manhattan_ap": 0.67599,
+        "euclidean_accuracy": 0.602051,
+        "euclidean_accuracy_threshold": 38.167118,
+        "euclidean_f1": 0.747246,
+        "euclidean_f1_threshold": 60.759758,
+        "euclidean_precision": 0.596483,
+        "euclidean_recall": 1.0,
+        "euclidean_ap": 0.676716,
+        "dot_accuracy": 0.602051,
+        "dot_accuracy_threshold": 679.141602,
+        "dot_f1": 0.746634,
+        "dot_f1_threshold": 97.502289,
+        "dot_precision": 0.595994,
+        "dot_recall": 0.999181,
+        "dot_ap": 0.554782,
+        "max_accuracy": 0.605469,
+        "max_f1": 0.747246,
+        "max_precision": 0.597639,
+        "max_recall": 1.0,
+        "max_ap": 0.676716,
+        "main_score": 0.605469,
+        "hf_subset": "default",
+        "languages": [
+          "eng-Latn"
+        ]
+      }
+    ]
+  },
+  "evaluation_time": 282.2405939102173,
+  "kg_co2_emissions": null
+}

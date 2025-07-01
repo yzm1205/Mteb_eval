@@ -50,10 +50,10 @@ def main():
     desired_task_types = [
         "Summarization",
         "STS",
-        "Retrieval",
         "Reranking",
         "PairClassification",
-        "Clustering"
+        "Clustering",
+        #"Retrieval"
     ]
     
     
