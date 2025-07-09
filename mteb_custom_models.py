@@ -15,13 +15,12 @@ from transformers.modeling_outputs import (
     CausalLMOutputWithPast,
     BaseModelOutputWithPast,
 )
-from math import ceil 
-from tqdm import tqdm
 
 from mteb.encoder_interface import Encoder, PromptType
 from mteb.model_meta import ModelMeta
 from mteb.models.wrapper import Wrapper
 from mteb.models.utils import batched # MTEB provides its own batched utility
+from tqdm import tqdm
 
 
 def get_device(device_input: Union[str, bool]) -> str:
@@ -55,20 +54,19 @@ class BaseAutoEncoderWrapper(Wrapper): # Renamed to Wrapper and added __init__
         auto_model_cls: Union[AutoModel, AutoModelForCausalLM],
         revision: str | None = None,
         device: Union[str, bool] = "auto",
-        torch_dtype: torch.dtype = torch.float16,
+        torch_dtype: torch.dtype = torch.float32,
         cache_dir: Path | str | None = None,
         max_length: int = 1024,
         **kwargs: Any,
     ):
-        # Initialize MTEB Wrapper without passing parameters that it doesn't expect
-        super().__init__()
+        # super().__init__(model_name_or_path, revision, **kwargs) # Pass to MTEB Wrapper
         self.model_name = model_name_or_path
-        self.device = get_device(device)
+        self.device = device
         self.max_length = max_length
 
-        if self.device == "cuda" and torch.cuda.device_count() > 1:
+        if self.device == "auto" and torch.cuda.device_count() < 2:
             # For multi-GPU, device_map="auto" is generally recommended
-            device_map_arg = "auto"
+            device_map_arg = "cuda"
         else:
             device_map_arg = self.device # For single device or CPU
 
@@ -112,25 +110,30 @@ class BaseAutoEncoderWrapper(Wrapper): # Renamed to Wrapper and added __init__
         **kwargs: Any,
     ) -> NDArray:
         all_embeddings = []
-        for batch in tqdm(batched(sentences, batch_size),desc="Encoding batches"):
-            sent_encode = self.tokenizer(
-                batch,
-                return_tensors="pt",
-                padding=True,
-                truncation=True,
-                max_length=self.max_length,
-                return_token_type_ids=False,
-            )
-            sent_encode = {k: v.to(self.model.device) for k, v in sent_encode.items()}
-            with torch.no_grad():
-                # Pass through the model to get hidden states
-                output = self.model(**sent_encode, use_cache=False, output_hidden_states=True)
+        total_batches = (len(sentences) + batch_size - 1) // batch_size
+        for batch in tqdm(batched(sentences, batch_size),desc=f"Encoding {task_name}",
+        total=total_batches,
+        leave=True
+    ):
+            pass
+        #     sent_encode = self.tokenizer(
+        #         batch,
+        #         return_tensors="pt",
+        #         padding=True,
+        #         truncation=True,
+        #         max_length=self.max_length,
+        #         return_token_type_ids=False,
+        #     )
+        #     sent_encode = {k: v.to(self.model.device) for k, v in sent_encode.items()}
+        #     with torch.no_grad():
+        #         # Pass through the model to get hidden states
+        #         output = self.model(**sent_encode, use_cache=False, output_hidden_states=True)
 
-            embeddings = self._get_embeddings_from_model_output(output)
-            model_embedding = mean_pooling(embeddings, sent_encode["attention_mask"].to(embeddings.device))
-            all_embeddings.append(model_embedding.cpu().numpy())
+        #     embeddings = self._get_embeddings_from_model_output(output)
+        #     model_embedding = mean_pooling(embeddings, sent_encode["attention_mask"].to(embeddings.device))
+        #     all_embeddings.append(model_embedding.cpu().numpy())
 
-        return np.concatenate(all_embeddings, axis=0)
+        # return np.concatenate(all_embeddings, axis=0)
 
 
 class AutoModelForCausalLMEncoderWrapper(BaseAutoEncoderWrapper):
@@ -163,33 +166,33 @@ class AutoModelEncoderWrapper(BaseAutoEncoderWrapper):
         return output.last_hidden_state
 
 
-class OpenELMEncoderWrapper(Wrapper):
+class OpenELMEncoderWrapper(AutoModelForCausalLMEncoderWrapper):
     """
     OpenELM Encoder adapted for MTEB.
     Note: OpenELM uses a Llama-2 tokenizer.
     """
     def __init__(
         self,
-        model_name_or_path: str = "apple/OpenELM-3B",
+        model_name_or_path: str = "/data/shared/models--apple--OpenELM-3B",
         revision: str | None = None,
         device: Union[str, bool] = "auto",
-        cache_dir: Path | str | None = None,  # Default cache directory
+        cache_dir: Path | str | None = "/data/shared/",  # Default cache directory
         torch_dtype: torch.dtype = torch.float32,
         max_length: int = 1024,
         **kwargs: Any,
     ):
-        # Initialize MTEB Wrapper
-        super().__init__()
-        
+        self.device = device
         # Override tokenizer_id if different from model_id for from_pretrained
         tokenizer_id = "meta-llama/Llama-2-7b-hf"
 
         # Load model using the specific OpenELM ID, but tokenizer from Llama-2
-        resolved_device = get_device(device)
-        if resolved_device == "cuda" and torch.cuda.device_count() > 1:
-            device_map_arg = "auto"
+        if self.device == "auto" and torch.cuda.device_count() < 2:
+            # For multi-GPU, device_map="auto" is generally recommended
+            device_map_arg = "cuda"
         else:
-            device_map_arg = resolved_device
+            device_map_arg = self.device # For single device or CPU
+            
+        print("Model on Device:", device_map_arg)
 
         self.model = AutoModelForCausalLM.from_pretrained(
             model_name_or_path,
@@ -212,7 +215,7 @@ class OpenELMEncoderWrapper(Wrapper):
         
         self.model_name = model_name_or_path
         self.revision = revision
-        self.device = resolved_device # Store the resolved device
+        self.device = get_device(device) # Store the resolved device
         self.max_length = max_length
 
 
@@ -225,11 +228,12 @@ class OpenELMEncoderWrapper(Wrapper):
         batch_size: int = 32,
         **kwargs: Any,
     ) -> NDArray:
-        
         all_embeddings = []
-        total_batches = ceil(len(sentences) / batch_size)
-        for batch in tqdm(batched(sentences, batch_size), total=total_batches,
-                                    desc=f"Encoding for Task: {task_name if task_name else 'Unknown'}"):
+        total_batches = (len(sentences) + batch_size - 1) // batch_size
+        for batch in tqdm(batched(sentences, batch_size),desc=f"Encoding {task_name}",
+        total=total_batches,
+        leave=True
+            ):
             sent_encode = self.tokenizer(
                 batch,
                 return_tensors="pt",
@@ -237,7 +241,7 @@ class OpenELMEncoderWrapper(Wrapper):
                 truncation=True,
                 max_length=self.max_length,
                 return_token_type_ids=False,
-            )
+            ) 
             sent_encode = {k: v.to(self.model.device) for k, v in sent_encode.items()}
             with torch.no_grad():
                 output = self.model(
@@ -257,12 +261,11 @@ class OLMoEncoderWrapper(AutoModelForCausalLMEncoderWrapper):
 
     def __init__(
         self,
-        # model_name_or_path: str = "/data/shared/olmo/OLMo-7B_shard_size_2GB",
-        model_name_or_path: str = "allenai/OLMo-7B", # Local path or HF ID
+        model_name_or_path: str = "/data/shared/olmo/OLMo-7B_shard_size_2GB", # Local path or HF ID
         revision: str | None = None,
         device: Union[str, bool] = "auto",
-        cache_dir: Path | str | None = None,
-        torch_dtype: torch.dtype = torch.float32,
+        cache_dir: Path | str | None = "/data/shared/",
+        torch_dtype: torch.dtype = torch.float16,
         max_length: int = 1024,
         **kwargs: Any,
     ):
@@ -275,6 +278,42 @@ class OLMoEncoderWrapper(AutoModelForCausalLMEncoderWrapper):
             max_length=max_length,
             **kwargs,
         )
+        
+    def encode(
+        self,
+        sentences: List[str],
+        *,
+        task_name: str,
+        prompt_type: PromptType | None = None,
+        batch_size: int = 32,
+        **kwargs: Any,
+    ) -> NDArray:
+        all_embeddings = []
+        total_batches = (len(sentences) + batch_size - 1) // batch_size
+        for batch in tqdm(batched(sentences, batch_size),desc=f"Encoding {task_name}",
+        total=total_batches,
+        leave=True
+            ):
+            sent_encode = self.tokenizer(
+                batch,
+                return_tensors="pt",
+                padding=True,
+                truncation=True,
+                max_length=self.max_length,
+                return_token_type_ids=False,
+            ) 
+            sent_encode = {k: v.to(self.model.device) for k, v in sent_encode.items()}
+            with torch.no_grad():
+                output = self.model(
+                    **sent_encode, output_hidden_states=True, use_cache=False
+                )
+
+            # For OpenELM, similar to other CausalLMs, use the last hidden state
+            embeddings = output.hidden_states[-1]
+            model_embedding = mean_pooling(embeddings, sent_encode["attention_mask"].to(embeddings.device))
+            all_embeddings.append(model_embedding.cpu().numpy())
+
+        return np.concatenate(all_embeddings, axis=0)
 
 
 # --- ModelMeta Definitions ---
@@ -282,11 +321,12 @@ class OLMoEncoderWrapper(AutoModelForCausalLMEncoderWrapper):
 olmo_7b_base = ModelMeta(
     loader=partial(
         OLMoEncoderWrapper,
-        model_name_or_path="allenai/OLMo-7B", # Path to your OLMo model
+        model_name_or_path="/data/shared/olmo/OLMo-7B_shard_size_2GB", # Path to your OLMo model
         # revision="<OLMO_REVISION_HASH>", # Add if you have a specific revision
         revision="local-2025-06-25-olmo-v1",
         torch_dtype=torch.float32,
         max_length=1024,
+        cache_dir="/data/shared/", # Default cache directory
     ),
     name="Bridge-AI/OLMo-7B-Base-MTEB", # A distinctive name
     languages=["eng-Latn"], # Assuming English
@@ -317,6 +357,7 @@ openelm_3b_base = ModelMeta(
         revision="local-2025-06-25-openelm-v1",# Or a specific commit hash
         torch_dtype=torch.float32,
         max_length=1024,
+        cache_dir="/data/shared/", # Default cache directory
     ),
     name="Bridge-AI/OpenELM-3B-Base-MTEB", # A distinctive name
     languages=["eng-Latn"], # Assuming English

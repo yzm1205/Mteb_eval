@@ -1,0 +1,26 @@
+{
+  "dataset_revision": "fd33b0b3454deb256be06a57e8147b32ba078ff9",
+  "task_name": "BuiltBenchReranking",
+  "mteb_version": "1.38.30",
+  "scores": {
+    "test": [
+      {
+        "map": 0.455506,
+        "mrr": 0.617458,
+        "nAUC_map_max": 0.105232,
+        "nAUC_map_std": 0.23822,
+        "nAUC_map_diff1": 0.050831,
+        "nAUC_mrr_max": 0.112507,
+        "nAUC_mrr_std": 0.097246,
+        "nAUC_mrr_diff1": 0.018028,
+        "main_score": 0.455506,
+        "hf_subset": "default",
+        "languages": [
+          "eng-Latn"
+        ]
+      }
+    ]
+  },
+  "evaluation_time": 163.4737331867218,
+  "kg_co2_emissions": null
+}

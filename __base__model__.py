@@ -82,8 +82,8 @@ class BaseAutoEncoder(Encoder, abc.ABC):
             truncation=True,
             max_length=1024,
             return_token_type_ids=False,
-        ).to(self.device)
-
+        )
+        sent_encode = {k: v.to(self.model.device) for k, v in sent_encode.items()}
         output = self.get_model_output(sent_encode)
 
         embeddings = self.get_embeddings_from_model_output(output)

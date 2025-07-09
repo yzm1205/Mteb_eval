@@ -48,14 +48,154 @@ def main():
     #     "Summarization"
     # ]
     desired_task_types = [
-        "Summarization",
-        "STS",
+        # "Summarization",
+        # "STS",
         "Retrieval",
-        "Reranking",
-        "PairClassification",
-        "Clustering"
+        # "Reranking",
+        # "PairClassification",
+        # "Clustering"
     ]
     
+    mteb_pair_classification_tasks = [
+    "LegalBenchPC",
+    "PubChemAISentenceParaphrasePC",
+    # "PubChemSMILESPC", # not working
+    "PubChemSynonymPC",
+    "PubChemWikiParagraphsPC",
+    "SprintDuplicateQuestions",
+    "TwitterSemEval2015",
+    "TwitterURLCorpus",
+    "OpusparcusPC",
+    "PawsXPairClassification",
+    "PubChemWikiPairClassification",
+    "RTE3",
+    "XNLI",
+]
+    
+    retrieval_datasets = [
+    "CQADupstackRetrieval",
+    "AppsRetrieval",
+    "CodeFeedbackMT",
+    "CodeFeedbackST",
+    "CosQA",
+    "StackOverflowQA",
+    "SyntheticText2SQL",
+    "AILACasedocs",
+    "AILAStatutes",
+    "AlphaNLI",
+    "ARCChallenge",
+    "ArguAna",
+    "BrightRetrieval", # very big dataset. 
+    "BrightLongRetrieval",
+    "BuiltBenchRetrieval",
+    "ChemHotpotQARetrieval",
+    "ChemNQRetrieval",
+    "ClimateFEVER",
+    "ClimateFEVERHardNegatives",
+    "ClimateFEVER.v2",
+    "CQADupstackAndroidRetrieval",
+    "CQADupstackEnglishRetrieval",
+    "CQADupstackGamingRetrieval",
+    "CQADupstackGisRetrieval",
+    "CQADupstackMathematicaRetrieval",
+    "CQADupstackPhysicsRetrieval",
+    "CQADupstackProgrammersRetrieval",
+    "CQADupstackStatsRetrieval",
+    "CQADupstackTexRetrieval",
+    "CQADupstackUnixRetrieval",
+    "CQADupstackWebmastersRetrieval",
+    "CQADupstackWordpressRetrieval",
+    "DBPedia",
+    "DBPediaHardNegatives",
+    "FaithDial",
+    "FeedbackQARetrieval",
+    "FEVER",
+    "FEVERHardNegatives",
+    "FiQA2018",
+    "HagridRetrieval",
+    "HellaSwag",
+    "HotpotQA",
+    "HotpotQAHardNegatives",
+    "LegalBenchConsumerContractsQA",
+    "LegalBenchCorporateLobbying",
+    "LegalSummarization",
+    "LEMBNarrativeQARetrieval",
+    "LEMBNeedleRetrieval",
+    "LEMBPasskeyRetrieval",
+    "LEMBQMSumRetrieval",
+    "LEMBSummScreenFDRetrieval",
+    "LEMBWikimQARetrieval",
+    "LitSearchRetrieval",
+    "MedicalQARetrieval",
+    "MLQuestions",
+    "MSMARCO",
+    "MSMARCOHardNegatives",
+    "MSMARCOv2",
+    "NanoArguAnaRetrieval",
+    "NanoClimateFeverRetrieval",
+    "NanoDBPediaRetrieval",
+    "NanoFEVERRetrieval",
+    "NanoFiQA2018Retrieval",
+    "NanoHotpotQARetrieval",
+    "NanoMSMARCORetrieval",
+    "NanoNFCorpusRetrieval",
+    "NanoNQRetrieval",
+    "NanoQuoraRetrieval",
+    "NanoSCIDOCSRetrieval",
+    "NanoSciFactRetrieval",
+    "NanoTouche2020Retrieval",
+    "NarrativeQARetrieval",
+    "NFCorpus",
+    "NQ",
+    "NQHardNegatives",
+    "PIQA",
+    "Quail",
+    "QuoraRetrieval",
+    "QuoraRetrievalHardNegatives",
+    "R2MEDBiologyRetrieval",
+    "R2MEDBioinformaticsRetrieval",
+    "R2MEDMedicalSciencesRetrieval",
+    "R2MEDMedXpertQAExamRetrieval",
+    "R2MEDMedQADiagRetrieval",
+    "R2MEDPMCTreatmentRetrieval",
+    "R2MEDPMCClinicalRetrieval",
+    "R2MEDIIYiClinicalRetrieval",
+    "RARbCode",
+    "RARbMath",
+    "SCIDOCS",
+    "SciFact",
+    "SIQA",
+    "SpartQA",
+    "TempReasonL1",
+    "TempReasonL2Context",
+    "TempReasonL2Fact",
+    "TempReasonL2Pure",
+    "TempReasonL3Context",
+    "TempReasonL3Fact",
+    "TempReasonL3Pure",
+    "TopiOCQA",
+    "TopiOCQAHardNegatives",
+    "Touche2020Retrieval.v3",
+    "TRECCOVID",
+    "WinoGrande",
+    "BelebeleRetrieval",
+    "CUREv1",
+    "MIRACLRetrieval",
+    "MIRACLRetrievalHardNegatives",
+    "MLQARetrieval",
+    "MrTidyRetrieval",
+    "MultiLongDocRetrieval",
+    "PublicHealthQA",
+    "StatcanDialogueDatasetRetrieval",
+    "WebFAQRetrieval",
+    "WikipediaRetrievalMultilingual",
+    "XMarket",
+    "XPQARetrieval",
+    "XQuADRetrieval",
+    "VDRMultilingualRetrieval",
+    "mFollowIRCrossLingualInstructionRetrieval",
+]
+
     
     print(f"\nFetching MTEB tasks for evaluation (English only, excluding bitext mining):")
     print(f"  Task types: {desired_task_types}")
@@ -63,7 +203,8 @@ def main():
     
     # For initial testing, you can limit to a smaller set of tasks or a single task
     tasks = mteb.get_tasks(task_types=desired_task_types, languages=["eng"]) # Example single task
-    # tasks = mteb.get_tasks(task_types=desired_task_types[:1], languages=["eng"]) # Your original line
+    # tasks = mteb.get_tasks(tasks=mteb_pair_classification_tasks, languages=["eng"]) # Example single task
+
 
     evaluation = MTEB(tasks=tasks)
     
@@ -71,7 +212,7 @@ def main():
     print("\nRunning MTEB evaluation...")
     results = evaluation.run(
         model,
-        verbosity=1, # Reduced verbosity for cleaner output, can be 3 for more details
+        verbosity=3, # Reduced verbosity for cleaner output, can be 3 for more details
         encode_kwargs=encode_kwargs,
         output_folder=str(output_dir / model_meta.name.replace('/', '_')) # Use model_meta.name
     )
