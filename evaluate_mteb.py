@@ -39,30 +39,15 @@ def main():
     # Note: If your models have fixed cache_dir in their loader, remove cache_dir from here.
     model = model_meta.loader(device=args.device) 
     
-    # desired_task_types = [
-    #     "Clustering",
-    #     "PairClassification",
-    #     "Reranking",
-    #     "Retrieval",
-    #     "STS",
-    #     "Summarization"
-    # ]
     desired_task_types = [
-<<<<<<< Updated upstream
-        "Summarization",
-        "STS",
-        #"Reranking",
-        #"PairClassification",
-        #"Clustering",
-=======
-            #"Summarization",
-            #"STS",
-            #"Reranking",
-            #"PairClassification",
-        "Clustering",
->>>>>>> Stashed changes
-        #"Retrieval"
+        # "Clustering",
+        # "PairClassification",
+        # "Reranking",
+        # "Retrieval",
+        # "STS",
+        # "Summarization"
     ]
+    
     
     
     print(f"\nFetching MTEB tasks for evaluation (English only, excluding bitext mining):")
