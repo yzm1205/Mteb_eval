@@ -48,11 +48,19 @@ def main():
     #     "Summarization"
     # ]
     desired_task_types = [
+<<<<<<< Updated upstream
         "Summarization",
         "STS",
         #"Reranking",
         #"PairClassification",
         #"Clustering",
+=======
+            #"Summarization",
+            #"STS",
+            #"Reranking",
+            #"PairClassification",
+        "Clustering",
+>>>>>>> Stashed changes
         #"Retrieval"
     ]
     
