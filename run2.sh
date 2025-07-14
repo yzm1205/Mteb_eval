@@ -2,6 +2,6 @@
 
 python evaluate_mteb.py \
     --model_name "olmo" \
-    --batch_size 8 \
+    --batch_size 2 \
     --device "cuda:1"
     

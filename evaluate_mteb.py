@@ -40,8 +40,8 @@ def main():
     model = model_meta.loader(device=args.device) 
     
     desired_task_types = [
-        "Reranking",
-        #"PairClassification",
+        # "Reranking",
+        "PairClassification",
         #"Clustering",
         #"Retrieval"
     ]
@@ -71,8 +71,8 @@ def main():
     
     
     # For initial testing, you can limit to a smaller set of tasks or a single task
-    tasks = mteb.get_tasks(task_types=desired_task_types, languages=["eng"]) # Example single task
-    # tasks = mteb.get_tasks(tasks=mteb_pair_classification_tasks, languages=["eng"]) # Example single task
+    # tasks = mteb.get_tasks(task_types=desired_task_types, languages=["eng"]) # Example single task
+    tasks = mteb.get_tasks(tasks=mteb_pair_classification_tasks, languages=["eng"]) # Example single task
 
     
     evaluation = MTEB(tasks=tasks)
