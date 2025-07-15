@@ -3,7 +3,7 @@
   "task_name": "OpusparcusPC",
   "mteb_version": "1.36.15",
   "scores": {
-    "test.full": [
+    "test": [
       {
         "similarity_accuracy": 0.779674,
         "similarity_accuracy_threshold": 0.730008,
